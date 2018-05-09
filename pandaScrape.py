@@ -1,9 +1,15 @@
 import pandas as pd
 
-hdata = pd.read_csv('https://rotogrinders.com/projected-stats/mlb-hitter.csv?site=draftkings', index_col=0)
+# Imports csv projection data from rotogrinders for pitchers and hitters, concatenates them and exports them to a joint
+# csv file
 
-hdata.to_csv('hitterprojections.csv')
+hdata = pd.read_csv('https://rotogrinders.com/projected-stats/mlb-hitter.csv?site=draftkings', header=None)
 
-pdata = pd.read_csv('https://rotogrinders.com/projected-stats/mlb-pitcher.csv?site=draftkings', index_col=0)
+pdata = pd.read_csv('https://rotogrinders.com/projected-stats/mlb-pitcher.csv?site=draftkings', header=None)
 
-pdata.to_csv('pitcherprojections.csv')
+hdata.append(pdata)
+
+frames = [hdata, pdata]
+result = pd.concat(frames)
+
+result.to_csv('players.csv', header=False, index=False)
