@@ -7,9 +7,11 @@ hdata = pd.read_csv('https://rotogrinders.com/projected-stats/mlb-hitter.csv?sit
 
 pdata = pd.read_csv('https://rotogrinders.com/projected-stats/mlb-pitcher.csv?site=draftkings', header=None)
 
+headers = pd.read_csv('Headers.csv', header=None)
+
 hdata.append(pdata)
 
-frames = [hdata, pdata]
+frames = [headers, hdata, pdata]
 result = pd.concat(frames)
 
 result.to_csv('players.csv', header=False, index=False)
