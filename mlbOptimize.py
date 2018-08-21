@@ -20,6 +20,7 @@ def getPosNum(name):
         '2B/3B': 3,
         '2B/SS': 3,
         '2B/OF': 3,
+        '2B/C': 3,
         '3B': 4,
         '3B/SS': 4,
         '3B/OF': 4,
@@ -189,15 +190,21 @@ def lineupBuilder(players, salaryCap, lineups, stackNum):
     for i in range(0, 29):
         solver.Add(teamsC[i] + teams1B[i] + teams2B[i] + teams3B[i] + teamsSS[i] + teamsOF[i] <= 5)
 
-    # Stack five hitters from primary team
-    solver.Add(teamsC[stacks[stackNum][0]] + teams1B[stacks[stackNum][0]] + teams2B[stacks[stackNum][0]]
-               + teams3B[stacks[stackNum][0]] + teamsSS[stacks[stackNum][0]] + teamsOF[stacks[stackNum][0]] == 5)
-    solver.Add(oppP[stacks[stackNum][0]] == 0)
+    if stackNum <= 19:
+        # Stack five hitters from primary team
+        solver.Add(teamsC[stacks[stackNum][0]] + teams1B[stacks[stackNum][0]] + teams2B[stacks[stackNum][0]]
+                   + teams3B[stacks[stackNum][0]] + teamsSS[stacks[stackNum][0]] + teamsOF[stacks[stackNum][0]] == 5)
+        solver.Add(oppP[stacks[stackNum][0]] == 0)
 
-    # Stack three hitters from secondary team
-    solver.Add(teamsC[stacks[stackNum][1]] + teams1B[stacks[stackNum][1]] + teams2B[stacks[stackNum][1]]
-               + teams3B[stacks[stackNum][1]] + teamsSS[stacks[stackNum][1]] + teamsOF[stacks[stackNum][1]] == 3)
-    solver.Add(oppP[stacks[stackNum][1]] == 0)
+        # Stack three hitters from secondary team
+        solver.Add(teamsC[stacks[stackNum][1]] + teams1B[stacks[stackNum][1]] + teams2B[stacks[stackNum][1]]
+                   + teams3B[stacks[stackNum][1]] + teamsSS[stacks[stackNum][1]] + teamsOF[stacks[stackNum][1]] == 3)
+        solver.Add(oppP[stacks[stackNum][1]] == 0)
+
+    else:
+        for i in range(0, 29):
+            solver.Add(oppP[i] + teamsC[i] + teams1B[i] + teams2B[i] + teams3B[i] + teamsSS[i] + teamsOF[i] <= 1)
+
 
     # Add constraint to adjust for lineup overlap
     for i in range(0, len(lineups)):
@@ -211,7 +218,7 @@ def lineupBuilder(players, salaryCap, lineups, stackNum):
     varSS = ceilSS - floorSS
     varOF = ceilOF - floorOF
 
-    solver.Maximize(varP + varC + var1B + var2B + var3B + varSS + varOF)
+    solver.Maximize(valueP + varC + var1B + var2B + var3B + varSS + varOF)
     solver.Solve()
     assert solver.VerifySolution(1e-7, True)
     print('Solved in', solver.wall_time(), 'milliseconds!', "\n")

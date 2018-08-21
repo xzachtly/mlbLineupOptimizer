@@ -1,6 +1,6 @@
 from ortools.linear_solver import pywraplp
 
-def lineupBuilder(players, salaryCap, lineups, stackNum, pStackNum, sStackNum, overlap, stacks):
+def lineupBuilder(players, salaryCap, lineups, stackNum, pStackNum, sStackNum, sStackNum2, overlap, stacks):
     solver = pywraplp.Solver('CoinsGridCLP', pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
 
     currLineup = []
@@ -128,13 +128,21 @@ def lineupBuilder(players, salaryCap, lineups, stackNum, pStackNum, sStackNum, o
     if stackNum <= 19:
         # Stack five hitters from primary team
         solver.Add(teamsC[stacks[stackNum][0]] + teams1B[stacks[stackNum][0]] + teams2B[stacks[stackNum][0]]
-                   + teams3B[stacks[stackNum][0]] + teamsSS[stacks[stackNum][0]] + teamsOF[stacks[stackNum][0]] == pStackNum)
+                   + teams3B[stacks[stackNum][0]] + teamsSS[stacks[stackNum][0]] + teamsOF[stacks[stackNum][0]] >= pStackNum)
         solver.Add(oppP[stacks[stackNum][0]] == 0)
 
         # Stack three hitters from secondary team
-        solver.Add(teamsC[stacks[stackNum][1]] + teams1B[stacks[stackNum][1]] + teams2B[stacks[stackNum][1]]
-                   + teams3B[stacks[stackNum][1]] + teamsSS[stacks[stackNum][1]] + teamsOF[stacks[stackNum][1]] == sStackNum)
-        solver.Add(oppP[stacks[stackNum][1]] == 0)
+        if sStackNum != 0:
+            solver.Add(teamsC[stacks[stackNum][1]] + teams1B[stacks[stackNum][1]] + teams2B[stacks[stackNum][1]]
+                       + teams3B[stacks[stackNum][1]] + teamsSS[stacks[stackNum][1]] + teamsOF[
+                           stacks[stackNum][1]] == sStackNum)
+            solver.Add(oppP[stacks[stackNum][1]] == 0)
+
+        if sStackNum2 != 0:
+            solver.Add(teamsC[stacks[stackNum][2]] + teams1B[stacks[stackNum][2]] + teams2B[stacks[stackNum][2]]
+                       + teams3B[stacks[stackNum][2]] + teamsSS[stacks[stackNum][2]] + teamsOF[
+                           stacks[stackNum][2]] == sStackNum2)
+            solver.Add(oppP[stacks[stackNum][2]] == 0)
 
     else:
         for i in range(0, 29):
@@ -146,12 +154,14 @@ def lineupBuilder(players, salaryCap, lineups, stackNum, pStackNum, sStackNum, o
         solver.Add(lCrossP[i] + lCrossC[i] + lCross1B[i] + lCross2B[i] + lCross3B[i] + lCrossSS[i] + lCrossOF[i] <= overlap)
 
     varP = ceilP - floorP
-    varC = ceilC - floorC
-    var1B = ceil1B - floor1B
-    var2B = ceil2B - floor2B
-    var3B = ceil3B - floor3B
-    varSS = ceilSS - floorSS
-    varOF = ceilOF - floorOF
+    varC = ceilC - floorC + valueC
+    var1B = ceil1B - floor1B + value1B
+    var2B = ceil2B - floor2B + value2B
+    var3B = ceil3B - floor3B + value3B
+    varSS = ceilSS - floorSS + valueSS
+    varOF = ceilOF - floorOF + valueOF
+
+    #solver.Add(salaryP <= 18000)
 
     solver.Maximize(valueP + varC + var1B + var2B + var3B + varSS + varOF)
     solver.Solve()

@@ -2,14 +2,14 @@ import csv
 from lineupBuilder import lineupBuilder
 
 
-def lineups(numLineups, players, salaryCap, pStackNum, sStackNum, overlap, stacks):
+def lineups(numLineups, players, salaryCap, pStackNum, sStackNum, sStackNum2, overlap, stacks):
 
     lineupList = []
     resultList = []
     lineupList.append(['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'])
 
     for stackNum in range(0, numLineups):
-        results = lineupBuilder(players, salaryCap, lineupList, stackNum, pStackNum, sStackNum, overlap, stacks)
+        results = lineupBuilder(players, salaryCap, lineupList, stackNum, pStackNum, sStackNum, sStackNum2, overlap, stacks)
         lineupList.append(results[0])
         resultList.append(results)
 
